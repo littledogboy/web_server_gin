@@ -9,6 +9,13 @@ import (
 	"web_server_gin/spiders"
 )
 
+// eg:/ping
+func Ping(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"message": "pong",
+	})
+}
+
 // eg: /home?page=1
 func HomePage(c *gin.Context) {
 	fmt.Println("pong")
