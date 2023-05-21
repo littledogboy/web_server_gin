@@ -20,7 +20,7 @@ func Ping(c *gin.Context) {
 func HomePage(c *gin.Context) {
 	fmt.Println("pong")
 	page := c.Query("page")
-	spiders.RecommendSpider(page, func(h spiders.Home, err error) {
+	spiders.MRTHomeSpider(spiders.Meirentu.Doman, page, func(h spiders.Home, err error) {
 		c.JSON(http.StatusOK, h)
 	})
 }
@@ -32,5 +32,24 @@ func DetailPage(c *gin.Context) {
 	href := c.Query("href")
 	spiders.DetailViewSpider(href, func(ad spiders.AlbumDetail) {
 		c.JSON(http.StatusOK, ad)
+	})
+}
+
+// eg: /menuItems
+func MenuItems(c *gin.Context) {
+	fmt.Println("pong")
+	spiders.MRTMenuItems(func(items spiders.Items, err error) {
+		c.JSON(http.StatusOK, items)
+	})
+}
+
+// eg: /group?href=xxx&page=x
+func GroupPage(c *gin.Context) {
+	// href
+	href := c.Query("href")
+	// page
+	page := c.Query("page")
+	spiders.MRTGroupSpider(href, page, func(h spiders.Home, err error) {
+		c.JSON(http.StatusOK, h)
 	})
 }

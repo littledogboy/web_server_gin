@@ -2,8 +2,8 @@ package spiders
 
 import (
 	"fmt"
-
 	"github.com/gocolly/colly/v2"
+	"strings"
 )
 
 type Home struct {
@@ -18,26 +18,60 @@ type Item struct {
 	Time  string `json:"time"`
 }
 
-func RecommendSpider(page string, callback func(Home, error)) {
+func MRTHomeSpider(desUrl string, page string, callback func(Home, error)) {
+	var newUrl string = desUrl
+	if page != "" {
+		newUrl = Meirentu.Doman + "index/" + page + ".html"
+	}
+	MRTDesURLSpider(newUrl, page, Meirentu.refer, Meirentu.referValue, Meirentu_Home_Selector, callback)
+}
 
-	// json结构体
+func MRTGroupSpider(href string, page string, callback func(Home, error)) {
+	if strings.Contains(href, Meirentu.Doman) {
+		array1 := strings.Split(href, "-")
+		newHref := array1[0] + "-" + page + ".html"
+		println(newHref)
+		MRTDesURLSpider(newHref, page, Meirentu.refer, Meirentu.referValue, Meirentu_Group_Selector, callback)
+	} else if strings.Contains(href, Fulitu.Doman) {
+		if strings.Contains(href, "-") {
+			array1 := strings.Split(href, "-")
+			newHref := array1[0] + "-" + page + ".html"
+			println(newHref)
+			MRTDesURLSpider(newHref, page, "", "", Meirentu_Group_Selector, callback)
+		} else {
+			array1 := strings.Split(href, ".")
+			element := array1[len(array1)-2]
+			element += "-1"
+			array1[len(array1)-2] = element
+			newHref := strings.Join(array1, ".")
+			println(newHref)
+			MRTDesURLSpider(newHref, page, "", "", Meirentu_Group_Selector, callback)
+		}
+	}
+}
+
+func MRTDesURLSpider(desUrl string, page string, refer string, value string, selector string, callback func(Home, error)) {
 	home := Home{
 		Recommends: []Item{},
 	}
 
-	// 域名
-	doman := Meirentu
 	// 创建采集器
 	c := colly.NewCollector()
 
 	// 注册请求回调
 	c.OnRequest(func(r *colly.Request) {
-		r.Headers.Add("referer", doman)
+		if refer != "" && value != "" {
+			r.Headers.Add(refer, value)
+		}
 	})
 
 	// 注册 html 回调
-	c.OnHTML("body > div.update_area > div > ul > li", func(li *colly.HTMLElement) {
-		href := doman + li.ChildAttr("a", "href")
+	c.OnHTML(selector, func(li *colly.HTMLElement) {
+		href := li.ChildAttr("a", "href")
+		if !strings.HasPrefix(href, "https") {
+			doman := getDomanFromElement(li)
+			href = doman + href
+		}
 		img := li.ChildAttr("a > img", "src")
 		model := li.ChildText("a > div > span")
 		title := li.ChildText("div > div.meta-title")
@@ -62,14 +96,14 @@ func RecommendSpider(page string, callback func(Home, error)) {
 	// 错误回调
 	c.OnError(func(r *colly.Response, err error) {
 		fmt.Println("请求的URL：", r.Request.URL, "失败的响应：", r, "\n错误：", err)
+		callback(home, err)
 	})
 
-	// https://meirentu.cc/index/1.html
-	// 访问
-	if page != "" {
-		html := doman + "index/" + page + ".html"
-		c.Visit(html)
-	} else {
-		c.Visit(doman)
-	}
+	c.Visit(desUrl)
+}
+
+func getDomanFromElement(h *colly.HTMLElement) string {
+	scheme := h.Request.URL.Scheme
+	host := h.Request.URL.Host
+	return scheme + "://" + host
 }
