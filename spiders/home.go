@@ -23,7 +23,7 @@ func MRTHomeSpider(desUrl string, page string, callback func(Home, error)) {
 	if page != "" {
 		newUrl = Meirentu.Doman + "index/" + page + ".html"
 	}
-	MRTDesURLSpider(newUrl, page, Meirentu.refer, Meirentu.referValue, Meirentu_Home_Selector, callback)
+	MRTDesURLSpider(newUrl, page, Meirentu.Refer, Meirentu.ReferValue, Meirentu_Home_Selector, callback)
 }
 
 func MRTGroupSpider(href string, page string, callback func(Home, error)) {
@@ -31,7 +31,7 @@ func MRTGroupSpider(href string, page string, callback func(Home, error)) {
 		array1 := strings.Split(href, "-")
 		newHref := array1[0] + "-" + page + ".html"
 		println(newHref)
-		MRTDesURLSpider(newHref, page, Meirentu.refer, Meirentu.referValue, Meirentu_Group_Selector, callback)
+		MRTDesURLSpider(newHref, page, Meirentu.Refer, Meirentu.ReferValue, Meirentu_Group_Selector, callback)
 	} else if strings.Contains(href, Fulitu.Doman) {
 		if strings.Contains(href, "-") {
 			array1 := strings.Split(href, "-")

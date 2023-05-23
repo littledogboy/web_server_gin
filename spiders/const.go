@@ -2,15 +2,17 @@ package spiders
 
 type WebSiteInfo struct {
 	Doman      string
-	refer      string
-	referValue string
+	Refer      string
+	ReferValue string
+	Name       string
 }
 
 var (
 	Meirentu = WebSiteInfo{
 		Doman:      "https://meirentu.cc/",
-		refer:      "referer",
-		referValue: "https://meirentu.cc/",
+		Refer:      "referer",
+		ReferValue: "https://meirentu.cc/",
+		Name:       "Meirentu",
 	}
 
 	Meirentu_Home_Selector = "body > div.update_area > div > ul > li"
@@ -19,13 +21,15 @@ var (
 
 	Fulitu = WebSiteInfo{
 		Doman:      "https://fulitu.me/",
-		refer:      "",
-		referValue: "",
+		Refer:      "",
+		ReferValue: "",
+		Name:       "Fulitu",
 	}
 
 	Bestprettygirl = WebSiteInfo{
 		Doman:      "https://bestprettygirl.com/",
-		refer:      "",
-		referValue: "",
+		Refer:      "",
+		ReferValue: "",
+		Name:       "BestPrettyGirl",
 	}
 )

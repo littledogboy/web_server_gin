@@ -38,8 +38,8 @@ func DetailPage(c *gin.Context) {
 // eg: /menuItems
 func MenuItems(c *gin.Context) {
 	fmt.Println("pong")
-	spiders.MRTMenuItems(func(items spiders.Items, err error) {
-		c.JSON(http.StatusOK, items)
+	spiders.MenuItems(func(data spiders.MenuData, err error) {
+		c.JSON(http.StatusOK, data)
 	})
 }
 

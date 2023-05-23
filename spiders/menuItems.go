@@ -1,16 +1,34 @@
 package spiders
 
 import (
+	"errors"
 	"github.com/gocolly/colly/v2"
 	"strings"
 )
 
-type Items struct {
+type MenuData struct {
+	Sections []ItemSection `json:"sections"`
+}
+
+type ItemSection struct {
+	Title string `json:"title"`
 	Items []Item `json:"items"`
 }
 
-func MRTMenuItems(callback func(items Items, err error)) {
-	items := Items{Items: []Item{}}
+func MenuItems(callback func(data MenuData, err error)) {
+	menuData := MenuData{Sections: []ItemSection{}}
+	var e error
+
+	MRTMenuItems(func(items ItemSection, err error) {
+		menuData.Sections = append(menuData.Sections, items)
+		e = errors.Join(err)
+	})
+
+	callback(menuData, e)
+}
+
+func MRTMenuItems(callback func(items ItemSection, err error)) {
+	sectionItems := ItemSection{Title: Meirentu.Name, Items: []Item{}}
 
 	c := colly.NewCollector()
 
@@ -24,15 +42,15 @@ func MRTMenuItems(callback func(items Items, err error)) {
 		title := h.Text
 
 		item := Item{Href: href, Title: title}
-		items.Items = append(items.Items, item)
+		sectionItems.Items = append(sectionItems.Items, item)
 	})
 
 	c.OnScraped(func(r *colly.Response) {
-		callback(items, nil)
+		callback(sectionItems, nil)
 	})
 
 	c.OnError(func(r *colly.Response, err error) {
-		callback(items, err)
+		callback(sectionItems, err)
 	})
 
 	c.Visit(Meirentu.Doman)
