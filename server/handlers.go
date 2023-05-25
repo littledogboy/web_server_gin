@@ -45,6 +45,7 @@ func MenuItems(c *gin.Context) {
 
 // eg: /group?href=xxx&page=x
 func GroupPage(c *gin.Context) {
+	fmt.Println("pong")
 	// href
 	href := c.Query("href")
 	// page

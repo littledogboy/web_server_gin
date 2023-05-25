@@ -8,7 +8,9 @@ import (
 	_ "image/png"
 	"log"
 	"net/http"
+	"net/url"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/gocolly/colly/v2"
@@ -26,9 +28,9 @@ type Image struct {
 }
 
 func DetailViewSpider(urlString string, callback func(AlbumDetail)) {
+	refer, referValue := getReferValueFromURLString(urlString)
 
 	c1 := colly.NewCollector(
-		colly.AllowedDomains("meirentu.cc"),
 		colly.Async(true),
 	)
 
@@ -45,7 +47,9 @@ func DetailViewSpider(urlString string, callback func(AlbumDetail)) {
 	}
 
 	c1.OnRequest(func(r *colly.Request) {
-		r.Headers.Add("referer", "https://meirentu.cc/")
+		if refer != "" && referValue != "" {
+			r.Headers.Add(refer, referValue)
+		}
 		// println("正在访问:", r.URL.String())
 	})
 
@@ -77,7 +81,9 @@ func DetailViewSpider(urlString string, callback func(AlbumDetail)) {
 	}
 
 	imageCollector.OnRequest(func(r *colly.Request) {
-		r.Headers.Add("referer", "https://meirentu.cc/")
+		if refer != "" && referValue != "" {
+			r.Headers.Add(refer, referValue)
+		}
 		// println("imageCollector 正在访问:", r.URL.String())
 	})
 
@@ -87,7 +93,7 @@ func DetailViewSpider(urlString string, callback func(AlbumDetail)) {
 		imageSrc := img.Attr("src")
 		if imageSrc != "" {
 			// 获取图片
-			getImageSize(imageSrc, func(width, height int) {
+			getImageSize(imageSrc, refer, referValue, func(width, height int) {
 				image := Image{
 					Src:    imageSrc,
 					Width:  width,
@@ -116,13 +122,12 @@ func DetailViewSpider(urlString string, callback func(AlbumDetail)) {
 	// println("------------\n")
 }
 
-func getImageSize(imageStr string, callback func(int, int)) {
-
-	referer := "referer"
-	doman := "https://meirentu.cc"
+func getImageSize(imageStr string, refer string, value string, callback func(int, int)) {
 
 	req, _ := http.NewRequest("GET", imageStr, nil)
-	req.Header.Set(referer, doman)
+	if refer != "" && value != "" {
+		req.Header.Set(refer, value)
+	}
 
 	resp, err := (&http.Client{}).Do(req)
 	if err != nil {
@@ -141,4 +146,15 @@ func getImageSize(imageStr string, callback func(int, int)) {
 	width := g.Dx()
 
 	callback(width, height)
+}
+
+func getReferValueFromURLString(urlStr string) (refer string, value string) {
+	var r, v string
+	u, _ := url.Parse(urlStr)
+	hostname := u.Hostname()
+	if strings.Contains(Meirentu.Doman, hostname) {
+		r = Meirentu.Refer
+		v = Meirentu.ReferValue
+	}
+	return r, v
 }
