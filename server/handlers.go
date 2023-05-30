@@ -54,3 +54,20 @@ func GroupPage(c *gin.Context) {
 		c.JSON(http.StatusOK, h)
 	})
 }
+
+// eg: /tags
+func Tags(c *gin.Context) {
+	fmt.Println("pong")
+	spiders.MRTTagsSpider(func(tagData spiders.TagData, err error) {
+		c.JSON(http.StatusOK, tagData)
+	})
+}
+
+// eg :/tag?href=xxx
+func TagPage(c *gin.Context) {
+	fmt.Println("pong")
+	href := c.Query("href")
+	spiders.MRTTagPageSpider(href, func(h spiders.Home, err error) {
+		c.JSON(http.StatusOK, h)
+	})
+}

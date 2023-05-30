@@ -3,6 +3,7 @@ package spiders
 import (
 	"fmt"
 	"github.com/gocolly/colly/v2"
+	"net/url"
 	"strings"
 )
 
@@ -42,6 +43,12 @@ func MRTGroupSpider(href string, page string, callback func(Home, error)) {
 			MRTDesURLSpider(newHref, page, "", "", Meirentu_Group_Selector, callback)
 		}
 	}
+}
+
+func MRTTagPageSpider(href string, callback func(Home, error)) {
+	urlStr, _ := url.JoinPath(Meirentu.Doman, href)
+	url, _ := url.PathUnescape(urlStr)
+	MRTDesURLSpider(url, "", Meirentu.Refer, Meirentu.ReferValue, Meirentu_TagPage_Selector, callback)
 }
 
 func MRTDesURLSpider(desUrl string, page string, refer string, value string, selector string, callback func(Home, error)) {
