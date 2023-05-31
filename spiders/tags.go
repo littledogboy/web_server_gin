@@ -14,7 +14,7 @@ type Tag struct {
 	Title    string `json:"title"`
 	Color    string `json:"color"`
 	FontSize int    `json:"fontSize"`
-	Href     string `json:"Href"`
+	Href     string `json:"href"`
 }
 
 func MRTTagsSpider(callback func(tagData TagData, err error)) {
