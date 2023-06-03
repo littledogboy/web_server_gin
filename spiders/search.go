@@ -28,11 +28,21 @@ func SearchPageSpider(q string, page string, callback func(Home, error)) {
 }
 
 func MRTSearchPageSpider(q string, page string, callback func(Home, error)) {
-	desURL := Meirentu.Doman + "s/" + q + "-" + page + ".html"
+	var desURL string
+	if page != "" {
+		desURL = Meirentu.Doman + "s/" + q + "-" + page + ".html"
+	} else {
+		desURL = Meirentu.Doman + "s/" + q + ".html"
+	}
 	MRTDesURLSpider(desURL, page, Meirentu.Refer, Meirentu.ReferValue, Meirentu_SearchPage_Selector, callback)
 }
 
 func FLTSearchPageSpider(q string, page string, callback func(Home, error)) {
-	desURL := Fulitu.Doman + "s/" + q + "-" + page + ".html"
+	var desURL string
+	if page != "" {
+		desURL = Fulitu.Doman + "s/" + q + "-" + page + ".html"
+	} else {
+		desURL = Fulitu.Doman + "s/" + q + ".html"
+	}
 	MRTDesURLSpider(desURL, page, "", "", Fulitu_SearchPage_Selector, callback)
 }
