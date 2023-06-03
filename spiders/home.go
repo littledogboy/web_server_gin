@@ -52,7 +52,7 @@ func MRTTagPageSpider(href string, page string, callback func(Home, error)) {
 
 	intPage, err := strconv.Atoi(page)
 	if err == nil && intPage > 1 {
-		home := Home{Recommends: []Item{}}
+		home := Home{}
 		callback(home, nil)
 	} else {
 		MRTDesURLSpider(url, page, Meirentu.Refer, Meirentu.ReferValue, Meirentu_TagPage_Selector, callback)

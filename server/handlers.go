@@ -63,12 +63,22 @@ func Tags(c *gin.Context) {
 	})
 }
 
-// eg :/tag?href=xxx
+// eg: /tag?href=xxx
 func TagPage(c *gin.Context) {
 	fmt.Println("pong")
 	href := c.Query("href")
 	page := c.Query("page")
 	spiders.MRTTagPageSpider(href, page, func(h spiders.Home, err error) {
+		c.JSON(http.StatusOK, h)
+	})
+}
+
+// eg: /search?q=xxx&page=x
+func SearchPage(c *gin.Context) {
+	fmt.Println("pong")
+	q := c.Query("q")
+	page := c.Query("page")
+	spiders.SearchPageSpider(q, page, func(h spiders.Home, err error) {
 		c.JSON(http.StatusOK, h)
 	})
 }

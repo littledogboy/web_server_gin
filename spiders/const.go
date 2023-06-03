@@ -17,11 +17,12 @@ var (
 
 	Meirentu_TagsPage = "https://meirentu.cc/tags.html"
 
-	Meirentu_Home_Selector    = "body > div.update_area > div > ul > li"
-	Meirentu_Detail_Selector  = "body > div.main > div > div > div:nth-child(3) > div > div > img"
-	Meirentu_Group_Selector   = "body > div.home-filter > div.update_area > div > ul > li"
-	Meirentu_Tags_Selector    = "body > div.home-filter > div > div > a"
-	Meirentu_TagPage_Selector = "body > div.home-filter > div.update_area > div > ul > li"
+	Meirentu_Home_Selector       = "body > div.update_area > div > ul > li"
+	Meirentu_Detail_Selector     = "body > div.main > div > div > div:nth-child(3) > div > div > img"
+	Meirentu_Group_Selector      = "body > div.home-filter > div.update_area > div > ul > li"
+	Meirentu_Tags_Selector       = "body > div.home-filter > div > div > a"
+	Meirentu_TagPage_Selector    = "body > div.home-filter > div.update_area > div > ul > li"
+	Meirentu_SearchPage_Selector = "body > div.home-filter > div.update_area > div > ul > li"
 
 	Fulitu = WebSiteInfo{
 		Doman:      "https://fulitu.me/",
@@ -29,6 +30,8 @@ var (
 		ReferValue: "",
 		Name:       "Fulitu",
 	}
+
+	Fulitu_SearchPage_Selector = "body > div.home-filter > div.update_area > div > ul > li"
 
 	Bestprettygirl = WebSiteInfo{
 		Doman:      "https://bestprettygirl.com/",

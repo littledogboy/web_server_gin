@@ -12,6 +12,7 @@ func Start() {
 	router := gin.Default()
 
 	store := persistence.NewInMemoryStore(time.Minute)
+
 	// Cached Page
 	router.GET("/home", cache.CachePage(store, time.Minute, HomePage))
 	router.GET("/detail", cache.CachePage(store, time.Hour, DetailPage))
@@ -19,6 +20,7 @@ func Start() {
 	router.GET("/group", cache.CachePage(store, time.Hour, GroupPage))
 	router.GET("/tags", cache.CachePage(store, time.Hour, Tags))
 	router.GET("/tag", cache.CachePage(store, time.Hour, TagPage))
+	router.GET("/search", cache.CachePage(store, time.Minute, SearchPage))
 
 	// ping
 	router.GET("/ping", Ping)
