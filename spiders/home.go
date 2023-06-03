@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gocolly/colly/v2"
 	"net/url"
+	"strconv"
 	"strings"
 )
 
@@ -45,10 +46,17 @@ func MRTGroupSpider(href string, page string, callback func(Home, error)) {
 	}
 }
 
-func MRTTagPageSpider(href string, callback func(Home, error)) {
+func MRTTagPageSpider(href string, page string, callback func(Home, error)) {
 	urlStr, _ := url.JoinPath(Meirentu.Doman, href)
 	url, _ := url.PathUnescape(urlStr)
-	MRTDesURLSpider(url, "", Meirentu.Refer, Meirentu.ReferValue, Meirentu_TagPage_Selector, callback)
+
+	intPage, err := strconv.Atoi(page)
+	if err == nil && intPage > 1 {
+		home := Home{Recommends: []Item{}}
+		callback(home, nil)
+	} else {
+		MRTDesURLSpider(url, page, Meirentu.Refer, Meirentu.ReferValue, Meirentu_TagPage_Selector, callback)
+	}
 }
 
 func MRTDesURLSpider(desUrl string, page string, refer string, value string, selector string, callback func(Home, error)) {

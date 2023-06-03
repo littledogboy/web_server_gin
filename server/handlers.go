@@ -67,7 +67,8 @@ func Tags(c *gin.Context) {
 func TagPage(c *gin.Context) {
 	fmt.Println("pong")
 	href := c.Query("href")
-	spiders.MRTTagPageSpider(href, func(h spiders.Home, err error) {
+	page := c.Query("page")
+	spiders.MRTTagPageSpider(href, page, func(h spiders.Home, err error) {
 		c.JSON(http.StatusOK, h)
 	})
 }
