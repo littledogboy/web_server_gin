@@ -6,7 +6,6 @@ import (
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
-	"log"
 	"net/http"
 	"net/url"
 	"sort"
@@ -123,7 +122,6 @@ func DetailViewSpider(urlString string, callback func(AlbumDetail)) {
 }
 
 func getImageSize(imageStr string, refer string, value string, callback func(int, int)) {
-
 	req, _ := http.NewRequest("GET", imageStr, nil)
 	if refer != "" && value != "" {
 		req.Header.Set(refer, value)
@@ -131,13 +129,13 @@ func getImageSize(imageStr string, refer string, value string, callback func(int
 
 	resp, err := (&http.Client{}).Do(req)
 	if err != nil {
-		log.Fatal(err)
+		return
 	}
 	defer resp.Body.Close()
 
 	m, _, err := image.Decode(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		return
 	}
 	g := m.Bounds()
 
