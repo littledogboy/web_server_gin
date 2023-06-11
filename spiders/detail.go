@@ -27,6 +27,54 @@ type Image struct {
 }
 
 func DetailViewSpider(urlString string, callback func(AlbumDetail)) {
+	site := WebsiteFromURLString(urlString)
+
+	switch site {
+	case MeirentuSite, FulituSite:
+		MRTDetailViewSpider(urlString, callback)
+	case BestprettygirlSite:
+		BPGDetailViewSpider(urlString, callback)
+	}
+}
+
+func BPGDetailViewSpider(urlString string, callback func(AlbumDetail)) {
+	newURLString, _ := url.PathUnescape(urlString)
+	albumDetail := AlbumDetail{
+		Info:   "",
+		Images: []Image{},
+	}
+
+	c := colly.NewCollector(
+		colly.Async(true),
+	)
+
+	c.OnHTML(BestPrettyGirl_Detail_Selector, func(h *colly.HTMLElement) {
+		imageSrc := h.Attr("src")
+		if imageSrc != "" {
+			getImageSize(imageSrc, "", "", func(width, height int) {
+				image := Image{
+					Src:    imageSrc,
+					Width:  width,
+					Height: height,
+				}
+				albumDetail.Images = append(albumDetail.Images, image)
+			})
+		}
+	})
+
+	c.OnScraped(func(r *colly.Response) {
+		callback(albumDetail)
+	})
+
+	c.OnError(func(r *colly.Response, err error) {
+		fmt.Println("请求失败的URL：", r.Request.URL, "失败的响应：", r, "\n错误：", err)
+	})
+
+	c.Visit(newURLString)
+	c.Wait()
+}
+
+func MRTDetailViewSpider(urlString string, callback func(AlbumDetail)) {
 	refer, referValue := getReferValueFromURLString(urlString)
 
 	c1 := colly.NewCollector(

@@ -50,7 +50,7 @@ func GroupPage(c *gin.Context) {
 	href := c.Query("href")
 	// page
 	page := c.Query("page")
-	spiders.MRTGroupSpider(href, page, func(h spiders.Home, err error) {
+	spiders.GroupSpider(href, page, func(h spiders.Home, err error) {
 		c.JSON(http.StatusOK, h)
 	})
 }

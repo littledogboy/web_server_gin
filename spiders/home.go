@@ -28,6 +28,14 @@ func MRTHomeSpider(desUrl string, page string, callback func(Home, error)) {
 	MRTDesURLSpider(newUrl, page, Meirentu.Refer, Meirentu.ReferValue, Meirentu_Home_Selector, callback)
 }
 
+func GroupSpider(href string, page string, callback func(Home, error)) {
+	if strings.Contains(href, Meirentu.Doman) || strings.Contains(href, Fulitu.Doman) {
+		MRTGroupSpider(href, page, callback)
+	} else if strings.Contains(href, Bestprettygirl.Doman) {
+		BPGGroupSpider(href, page, callback)
+	}
+}
+
 func MRTGroupSpider(href string, page string, callback func(Home, error)) {
 	var newHref string
 	if strings.Contains(href, Meirentu.Doman) {
@@ -44,6 +52,15 @@ func MRTGroupSpider(href string, page string, callback func(Home, error)) {
 			MRTDesURLSpider(newHref, page, "", "", Meirentu_Group_Selector, callback)
 		}
 	}
+}
+
+func BPGGroupSpider(href string, page string, callback func(Home, error)) {
+	var newHref = href
+
+	if page != "" {
+		newHref = href + "page" + "/" + page
+	}
+	BPGDesURLSpider(newHref, page, "", "", Bestprettygirl_Thumbnail_Selector, callback)
 }
 
 func MRTTagPageSpider(href string, page string, callback func(Home, error)) {
@@ -92,6 +109,47 @@ func MRTDesURLSpider(desUrl string, page string, refer string, value string, sel
 			Model: model,
 			Title: title,
 			Time:  time,
+		}
+
+		home.Recommends = append(home.Recommends, item)
+	})
+
+	// 抓取结束后回调
+	c.OnScraped(func(r *colly.Response) {
+		callback(home, nil)
+	})
+
+	// 错误回调
+	c.OnError(func(r *colly.Response, err error) {
+		fmt.Println("请求的URL：", r.Request.URL, "失败的响应：", r, "\n错误：", err)
+		callback(home, err)
+	})
+
+	c.Visit(desUrl)
+}
+
+func BPGDesURLSpider(desUrl string, page string, refer string, value string, selector string, callback func(Home, error)) {
+	home := Home{
+		Recommends: []Item{},
+	}
+
+	// 创建采集器
+	c := colly.NewCollector()
+
+	// 注册请求回调
+	c.OnRequest(func(r *colly.Request) {
+	})
+
+	// 注册 html 回调
+	c.OnHTML(selector, func(h *colly.HTMLElement) {
+		href := h.Attr("href")
+		img := h.ChildAttr("div > img", "src")
+		title := h.ChildAttr("div > img", "alt")
+
+		item := Item{
+			Href:  href,
+			Img:   img,
+			Title: title,
 		}
 
 		home.Recommends = append(home.Recommends, item)

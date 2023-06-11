@@ -1,5 +1,14 @@
 package spiders
 
+type WebSiteType int64
+
+const (
+	UnknownSite WebSiteType = iota
+	MeirentuSite
+	FulituSite
+	BestprettygirlSite
+)
+
 type WebSiteInfo struct {
 	Doman      string
 	Refer      string
@@ -39,6 +48,10 @@ var (
 		ReferValue: "",
 		Name:       "BestPrettyGirl",
 	}
+
+	Bestprettygirl_Menu_Selector      = "#menu-1-56feab2e > li > a"
+	Bestprettygirl_Thumbnail_Selector = "a.elementor-post__thumbnail__link"
+	BestPrettyGirl_Detail_Selector    = "#content > div > section > div > div > div > div > div > p > img"
 
 	TagFontSizeMap = map[string]int{
 		"fs0": 14, "fs1": 13, "fs2": 14, "fs3": 15, "fs4": 16, "fs5": 17,

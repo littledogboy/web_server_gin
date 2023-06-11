@@ -24,6 +24,11 @@ func MenuItems(callback func(data MenuData, err error)) {
 		e = errors.Join(err)
 	})
 
+	BestPrettyGirlMenuItems(func(items ItemSection, err error) {
+		menuData.Sections = append(menuData.Sections, items)
+		e = errors.Join(err)
+	})
+
 	callback(menuData, e)
 }
 
@@ -54,4 +59,32 @@ func MRTMenuItems(callback func(items ItemSection, err error)) {
 	})
 
 	c.Visit(Meirentu.Doman)
+}
+
+func BestPrettyGirlMenuItems(callback func(items ItemSection, err error)) {
+	sectionItems := ItemSection{Title: Bestprettygirl.Name, Items: []Item{}}
+
+	c := colly.NewCollector()
+
+	selector := Bestprettygirl_Menu_Selector
+	c.OnHTML(selector, func(h *colly.HTMLElement) {
+		href := h.Attr("href")
+		title := h.Text
+
+		item := Item{Href: href, Title: title}
+
+		if title != "Video" {
+			sectionItems.Items = append(sectionItems.Items, item)
+		}
+	})
+
+	c.OnScraped(func(r *colly.Response) {
+		callback(sectionItems, nil)
+	})
+
+	c.OnError(func(r *colly.Response, err error) {
+		callback(sectionItems, err)
+	})
+
+	c.Visit(Bestprettygirl.Doman)
 }
