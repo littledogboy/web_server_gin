@@ -143,11 +143,12 @@ func BPGDesURLSpider(desUrl string, page string, refer string, value string, sel
 	// 注册 html 回调
 	c.OnHTML(selector, func(h *colly.HTMLElement) {
 		href := h.Attr("href")
+		newHref, _ := url.PathUnescape(href)
 		img := h.ChildAttr("div > img", "src")
 		title := h.ChildAttr("div > img", "alt")
 
 		item := Item{
-			Href:  href,
+			Href:  newHref,
 			Img:   img,
 			Title: title,
 		}

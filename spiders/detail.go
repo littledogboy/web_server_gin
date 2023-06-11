@@ -1,7 +1,9 @@
 package spiders
 
 import (
+	"bytes"
 	"fmt"
+	"github.com/gocolly/colly/v2"
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"
@@ -11,8 +13,6 @@ import (
 	"sort"
 	"strings"
 	"time"
-
-	"github.com/gocolly/colly/v2"
 )
 
 type AlbumDetail struct {
@@ -48,30 +48,58 @@ func BPGDetailViewSpider(urlString string, callback func(AlbumDetail)) {
 		colly.Async(true),
 	)
 
+	c.Limit(&colly.LimitRule{
+		DomainGlob:  Bestprettygirl.Doman,
+		RandomDelay: 100 * time.Millisecond,
+		Parallelism: 30,
+	})
+
+	imageCollector := c.Clone()
+
 	c.OnHTML(BestPrettyGirl_Detail_Selector, func(h *colly.HTMLElement) {
 		imageSrc := h.Attr("src")
 		if imageSrc != "" {
-			getImageSize(imageSrc, "", "", func(width, height int) {
-				image := Image{
-					Src:    imageSrc,
-					Width:  width,
-					Height: height,
-				}
-				albumDetail.Images = append(albumDetail.Images, image)
-			})
+			imageCollector.Visit(imageSrc)
 		}
 	})
 
 	c.OnScraped(func(r *colly.Response) {
-		callback(albumDetail)
 	})
 
 	c.OnError(func(r *colly.Response, err error) {
 		fmt.Println("请求失败的URL：", r.Request.URL, "失败的响应：", r, "\n错误：", err)
 	})
 
+	imageCollector.OnResponse(func(r *colly.Response) {
+		m, _, err := image.Decode(bytes.NewReader(r.Body))
+		if err != nil {
+			return
+		}
+
+		g := m.Bounds()
+
+		src := r.Request.URL.String()
+		newSrc, _ := url.PathUnescape(src)
+		// Get height and width
+		height := g.Dy()
+		width := g.Dx()
+		image := Image{
+			Src:    newSrc,
+			Width:  int(width),
+			Height: int(height),
+		}
+		albumDetail.Images = append(albumDetail.Images, image)
+	})
+
 	c.Visit(newURLString)
 	c.Wait()
+	imageCollector.Wait()
+
+	sort.Slice(albumDetail.Images, func(i, j int) bool {
+		return albumDetail.Images[i].Src < albumDetail.Images[j].Src
+	})
+
+	callback(albumDetail)
 }
 
 func MRTDetailViewSpider(urlString string, callback func(AlbumDetail)) {
