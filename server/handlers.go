@@ -30,8 +30,12 @@ func DetailPage(c *gin.Context) {
 	fmt.Println("pong")
 	// get href
 	href := c.Query("href")
-	spiders.DetailViewSpider(href, func(ad spiders.AlbumDetail) {
-		c.JSON(http.StatusOK, ad)
+	spiders.DetailViewSpider(href, func(ad spiders.AlbumDetail, e error) {
+		if e != nil {
+			c.AbortWithStatusJSON(http.StatusNoContent, ad)
+		} else {
+			c.JSON(http.StatusOK, ad)
+		}
 	})
 }
 

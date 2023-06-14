@@ -2,17 +2,20 @@ package spiders
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
-	"github.com/gocolly/colly/v2"
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
+	"log"
 	"net/http"
 	"net/url"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/gocolly/colly/v2"
 )
 
 type AlbumDetail struct {
@@ -26,7 +29,7 @@ type Image struct {
 	Height int    `json:"height"`
 }
 
-func DetailViewSpider(urlString string, callback func(AlbumDetail)) {
+func DetailViewSpider(urlString string, callback func(AlbumDetail, error)) {
 	site := WebsiteFromURLString(urlString)
 
 	switch site {
@@ -37,7 +40,9 @@ func DetailViewSpider(urlString string, callback func(AlbumDetail)) {
 	}
 }
 
-func BPGDetailViewSpider(urlString string, callback func(AlbumDetail)) {
+func BPGDetailViewSpider(urlString string, callback func(AlbumDetail, error)) {
+	var e error
+
 	newURLString, _ := url.PathUnescape(urlString)
 	albumDetail := AlbumDetail{
 		Info:   "",
@@ -58,7 +63,7 @@ func BPGDetailViewSpider(urlString string, callback func(AlbumDetail)) {
 
 	c.OnHTML(BestPrettyGirl_Detail_Selector, func(h *colly.HTMLElement) {
 		imageSrc := h.Attr("src")
-		if imageSrc != "" {
+		if imageSrc != "" && strings.HasSuffix(imageSrc, "jpg") {
 			imageCollector.Visit(imageSrc)
 		}
 	})
@@ -67,12 +72,15 @@ func BPGDetailViewSpider(urlString string, callback func(AlbumDetail)) {
 	})
 
 	c.OnError(func(r *colly.Response, err error) {
-		fmt.Println("请求失败的URL：", r.Request.URL, "失败的响应：", r, "\n错误：", err)
+		log.Println("请求失败的URL：", r.Request.URL)
+		e = errors.Join(err)
 	})
 
 	imageCollector.OnResponse(func(r *colly.Response) {
 		m, _, err := image.Decode(bytes.NewReader(r.Body))
 		if err != nil {
+			log.Println(err)
+			e = errors.Join(err)
 			return
 		}
 
@@ -91,6 +99,11 @@ func BPGDetailViewSpider(urlString string, callback func(AlbumDetail)) {
 		albumDetail.Images = append(albumDetail.Images, image)
 	})
 
+	imageCollector.OnError(func(r *colly.Response, err error) {
+		log.Println("请求失败的URL：", r.Request.URL)
+		e = errors.Join(err)
+	})
+
 	c.Visit(newURLString)
 	c.Wait()
 	imageCollector.Wait()
@@ -99,17 +112,22 @@ func BPGDetailViewSpider(urlString string, callback func(AlbumDetail)) {
 		return albumDetail.Images[i].Src < albumDetail.Images[j].Src
 	})
 
-	callback(albumDetail)
+	callback(albumDetail, e)
 }
 
-func MRTDetailViewSpider(urlString string, callback func(AlbumDetail)) {
+func MRTDetailViewSpider(urlString string, callback func(AlbumDetail, error)) {
 	refer, referValue := getReferValueFromURLString(urlString)
+
+	albumDetail := AlbumDetail{
+		Info:   "",
+		Images: []Image{},
+	}
 
 	c1 := colly.NewCollector(
 		colly.Async(true),
 	)
 
-	err := c1.Limit(&colly.LimitRule{
+	c1.Limit(&colly.LimitRule{
 		DomainGlob:  "*",
 		RandomDelay: 100 * time.Millisecond,
 		Parallelism: 30,
@@ -117,15 +135,10 @@ func MRTDetailViewSpider(urlString string, callback func(AlbumDetail)) {
 
 	imageCollector := c1.Clone()
 
-	if err != nil {
-		println("添加限制出错: ", err)
-	}
-
 	c1.OnRequest(func(r *colly.Request) {
 		if refer != "" && referValue != "" {
 			r.Headers.Add(refer, referValue)
 		}
-		// println("正在访问:", r.URL.String())
 	})
 
 	// 解析 page 获取所有分页链接
@@ -142,24 +155,17 @@ func MRTDetailViewSpider(urlString string, callback func(AlbumDetail)) {
 	})
 
 	c1.OnScraped(func(r *colly.Response) {
-		// println("c1 抓取结束 \n--------------------\n")
 	})
 
 	c1.OnError(func(r *colly.Response, err error) {
 		fmt.Println("请求失败的URL：", r.Request.URL, "失败的响应：", r, "\n错误：", err)
+		callback(albumDetail, err)
 	})
-
-	//////////////////
-	albumDetail := AlbumDetail{
-		Info:   "",
-		Images: []Image{},
-	}
 
 	imageCollector.OnRequest(func(r *colly.Request) {
 		if refer != "" && referValue != "" {
 			r.Headers.Add(refer, referValue)
 		}
-		// println("imageCollector 正在访问:", r.URL.String())
 	})
 
 	// // 获取图片
@@ -180,7 +186,10 @@ func MRTDetailViewSpider(urlString string, callback func(AlbumDetail)) {
 	})
 
 	imageCollector.OnScraped(func(r *colly.Response) {
-		// println("imageCollector 抓取结束", r.Request.URL.String(), "\n--------------------\n")
+	})
+
+	imageCollector.OnError(func(r *colly.Response, err error) {
+		callback(albumDetail, err)
 	})
 
 	// 访问
@@ -192,9 +201,8 @@ func MRTDetailViewSpider(urlString string, callback func(AlbumDetail)) {
 	sort.Slice(albumDetail.Images, func(i, j int) bool {
 		return albumDetail.Images[i].Src < albumDetail.Images[j].Src
 	})
-	callback(albumDetail)
-	// println("详情页抓取结束\n")
-	// println("------------\n")
+
+	callback(albumDetail, nil)
 }
 
 func getImageSize(imageStr string, refer string, value string, callback func(int, int)) {
