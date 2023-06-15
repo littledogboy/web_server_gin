@@ -21,7 +21,11 @@ func HomePage(c *gin.Context) {
 	fmt.Println("pong")
 	page := c.Query("page")
 	spiders.MRTHomeSpider(spiders.Meirentu.Doman, page, func(h spiders.Home, err error) {
-		c.JSON(http.StatusOK, h)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusNoContent, h)
+		} else {
+			c.JSON(http.StatusOK, h)
+		}
 	})
 }
 

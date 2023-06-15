@@ -1,8 +1,13 @@
 package spiders
 
 import (
+	// "bytes"
 	"fmt"
+	"log"
+
 	"github.com/gocolly/colly/v2"
+	"github.com/gocolly/colly/v2/proxy"
+
 	"net/url"
 	"strconv"
 	"strings"
@@ -82,13 +87,27 @@ func MRTDesURLSpider(desUrl string, page string, refer string, value string, sel
 	}
 
 	// 创建采集器
-	c := colly.NewCollector()
+	c := colly.NewCollector(
+		colly.UserAgent(RandomString()),
+		colly.AllowURLRevisit(),
+		colly.AllowedDomains("meirentu.cc", "fulitu.me"),
+	)
+
+	// proxies
+	rp, err := proxy.RoundRobinProxySwitcher("socks5://127.0.0.1:7890")
+	if err != nil {
+		log.Fatal(err)
+	}
+	c.SetProxyFunc(rp)
 
 	// 注册请求回调
 	c.OnRequest(func(r *colly.Request) {
-		if refer != "" && value != "" {
-			r.Headers.Add(refer, value)
-		}
+		// log.Println(r.URL)
+	})
+
+	c.OnResponse(func(r *colly.Response) {
+		// log.Printf("Proxy Address: %s\n", r.Request.ProxyURL)
+		// log.Printf("%s\n", bytes.Replace(r.Body, []byte("\n"), nil, -1))
 	})
 
 	// 注册 html 回调
@@ -121,7 +140,7 @@ func MRTDesURLSpider(desUrl string, page string, refer string, value string, sel
 
 	// 错误回调
 	c.OnError(func(r *colly.Response, err error) {
-		fmt.Println("请求的URL：", r.Request.URL, "失败的响应：", r, "\n错误：", err)
+		log.Println("请求的URL：", r.Request.URL, "失败的响应：", r, "\n错误：", err)
 		callback(home, err)
 	})
 
