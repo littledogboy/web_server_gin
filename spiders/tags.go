@@ -4,6 +4,8 @@ import (
 	"strings"
 
 	"github.com/gocolly/colly/v2"
+	"github.com/gocolly/colly/v2/proxy"
+	"log"
 )
 
 type TagData struct {
@@ -20,7 +22,19 @@ type Tag struct {
 func MRTTagsSpider(callback func(tagData TagData, err error)) {
 	tagData := TagData{Tags: []Tag{}}
 
-	c := colly.NewCollector()
+	// 创建采集器
+	c := colly.NewCollector(
+		colly.UserAgent(RandomString()),
+		colly.AllowURLRevisit(),
+		colly.AllowedDomains("meirentu.cc", "fulitu.me"),
+	)
+
+	// proxies
+	rp, err := proxy.RoundRobinProxySwitcher("socks5://127.0.0.1:7890")
+	if err != nil {
+		log.Fatal(err)
+	}
+	c.SetProxyFunc(rp)
 
 	selector := Meirentu_Tags_Selector
 	c.OnHTML(selector, func(h *colly.HTMLElement) {

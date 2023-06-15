@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/gocolly/colly/v2"
+	"github.com/gocolly/colly/v2/proxy"
 )
 
 type AlbumDetail struct {
@@ -123,9 +124,20 @@ func MRTDetailViewSpider(urlString string, callback func(AlbumDetail, error)) {
 		Images: []Image{},
 	}
 
+	// 创建采集器
 	c1 := colly.NewCollector(
+		colly.UserAgent(RandomString()),
+		colly.AllowURLRevisit(),
+		colly.AllowedDomains("meirentu.cc", "fulitu.me"),
 		colly.Async(true),
 	)
+
+	// proxies
+	rp, err := proxy.RoundRobinProxySwitcher("socks5://127.0.0.1:7890")
+	if err != nil {
+		log.Fatal(err)
+	}
+	c1.SetProxyFunc(rp)
 
 	c1.Limit(&colly.LimitRule{
 		DomainGlob:  "*",
