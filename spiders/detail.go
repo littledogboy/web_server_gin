@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/gocolly/colly/v2"
+	"github.com/gocolly/colly/v2/extensions"
 	"github.com/gocolly/colly/v2/proxy"
 )
 
@@ -53,6 +54,7 @@ func BPGDetailViewSpider(urlString string, callback func(AlbumDetail, error)) {
 	c := colly.NewCollector(
 		colly.Async(true),
 	)
+	extensions.RandomUserAgent(c)
 
 	c.Limit(&colly.LimitRule{
 		DomainGlob:  Bestprettygirl.Doman,
@@ -126,11 +128,11 @@ func MRTDetailViewSpider(urlString string, callback func(AlbumDetail, error)) {
 
 	// 创建采集器
 	c1 := colly.NewCollector(
-		colly.UserAgent(RandomString()),
 		colly.AllowURLRevisit(),
 		colly.AllowedDomains("meirentu.cc", "fulitu.me"),
 		colly.Async(true),
 	)
+	extensions.RandomUserAgent(c1)
 
 	// proxies
 	rp, err := proxy.RoundRobinProxySwitcher("socks5://127.0.0.1:7890")

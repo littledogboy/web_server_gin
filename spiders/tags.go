@@ -4,6 +4,8 @@ import (
 	"strings"
 
 	"github.com/gocolly/colly/v2"
+	"github.com/gocolly/colly/v2/extensions"
+
 	"github.com/gocolly/colly/v2/proxy"
 	"log"
 )
@@ -24,10 +26,10 @@ func MRTTagsSpider(callback func(tagData TagData, err error)) {
 
 	// 创建采集器
 	c := colly.NewCollector(
-		colly.UserAgent(RandomString()),
 		colly.AllowURLRevisit(),
 		colly.AllowedDomains("meirentu.cc", "fulitu.me"),
 	)
+	extensions.RandomUserAgent(c)
 
 	// proxies
 	rp, err := proxy.RoundRobinProxySwitcher("socks5://127.0.0.1:7890")

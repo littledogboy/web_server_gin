@@ -3,6 +3,7 @@ package spiders
 import (
 	"errors"
 	"github.com/gocolly/colly/v2"
+	"github.com/gocolly/colly/v2/extensions"
 	"github.com/gocolly/colly/v2/proxy"
 	"log"
 	"strings"
@@ -38,10 +39,10 @@ func MRTMenuItems(callback func(items ItemSection, err error)) {
 	sectionItems := ItemSection{Title: Meirentu.Name, Items: []Item{}}
 
 	c := colly.NewCollector(
-		colly.UserAgent(RandomString()),
 		colly.AllowURLRevisit(),
 		colly.AllowedDomains("meirentu.cc", "fulitu.me"),
 	)
+	extensions.RandomUserAgent(c)
 
 	// proxies
 	rp, err := proxy.RoundRobinProxySwitcher("socks5://127.0.0.1:7890")
@@ -78,6 +79,7 @@ func BestPrettyGirlMenuItems(callback func(items ItemSection, err error)) {
 	sectionItems := ItemSection{Title: Bestprettygirl.Name, Items: []Item{}}
 
 	c := colly.NewCollector()
+	extensions.RandomUserAgent(c)
 
 	selector := Bestprettygirl_Menu_Selector
 	c.OnHTML(selector, func(h *colly.HTMLElement) {

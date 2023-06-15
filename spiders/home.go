@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/gocolly/colly/v2"
+	"github.com/gocolly/colly/v2/extensions"
 	"github.com/gocolly/colly/v2/proxy"
 
 	"net/url"
@@ -88,10 +89,10 @@ func MRTDesURLSpider(desUrl string, page string, refer string, value string, sel
 
 	// 创建采集器
 	c := colly.NewCollector(
-		colly.UserAgent(RandomString()),
 		colly.AllowURLRevisit(),
 		colly.AllowedDomains("meirentu.cc", "fulitu.me"),
 	)
+	extensions.RandomUserAgent(c)
 
 	// proxies
 	rp, err := proxy.RoundRobinProxySwitcher("socks5://127.0.0.1:7890")
@@ -154,6 +155,7 @@ func BPGDesURLSpider(desUrl string, page string, refer string, value string, sel
 
 	// 创建采集器
 	c := colly.NewCollector()
+	extensions.RandomUserAgent(c)
 
 	// 注册请求回调
 	c.OnRequest(func(r *colly.Request) {
