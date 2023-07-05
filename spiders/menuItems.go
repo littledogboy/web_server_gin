@@ -23,12 +23,16 @@ func MenuItems(callback func(data MenuData, err error)) {
 	var e error
 
 	MRTMenuItems(func(items ItemSection, err error) {
-		menuData.Sections = append(menuData.Sections, items)
+		if err == nil {
+			menuData.Sections = append(menuData.Sections, items)
+		}
 		e = errors.Join(err)
 	})
 
 	BestPrettyGirlMenuItems(func(items ItemSection, err error) {
-		menuData.Sections = append(menuData.Sections, items)
+		if err == nil {
+			menuData.Sections = append(menuData.Sections, items)
+		}
 		e = errors.Join(err)
 	})
 
