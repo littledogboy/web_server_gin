@@ -61,6 +61,7 @@ func BPGDetailViewSpider(urlString string, callback func(AlbumDetail, error)) {
 		RandomDelay: 100 * time.Millisecond,
 		Parallelism: 30,
 	})
+	c.SetRequestTimeout(20 * time.Second)
 
 	imageCollector := c.Clone()
 
@@ -75,7 +76,7 @@ func BPGDetailViewSpider(urlString string, callback func(AlbumDetail, error)) {
 	})
 
 	c.OnError(func(r *colly.Response, err error) {
-		log.Println("请求失败的URL：", r.Request.URL)
+		log.Println("请求失败的URL：", r.Request.URL, "失败的响应：", r, "\n错误：", err)
 		e = errors.Join(err)
 	})
 
@@ -103,7 +104,7 @@ func BPGDetailViewSpider(urlString string, callback func(AlbumDetail, error)) {
 	})
 
 	imageCollector.OnError(func(r *colly.Response, err error) {
-		log.Println("请求失败的URL：", r.Request.URL)
+		log.Println("请求失败的URL：", r.Request.URL, "失败的响应：", r, "\n错误：", err)
 		e = errors.Join(err)
 	})
 
