@@ -32,7 +32,7 @@ func MRTTagsSpider(callback func(tagData TagData, err error)) {
 	extensions.RandomUserAgent(c)
 
 	// proxies
-	rp, err := proxy.RoundRobinProxySwitcher("socks5://127.0.0.1:7891")
+	rp, err := proxy.RoundRobinProxySwitcher("socks5://127.0.0.1:7890")
 	if err != nil {
 		log.Fatal(err)
 	}

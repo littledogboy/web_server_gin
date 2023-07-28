@@ -136,7 +136,7 @@ func MRTDetailViewSpider(urlString string, callback func(AlbumDetail, error)) {
 	extensions.RandomUserAgent(c1)
 
 	// proxies
-	rp, err := proxy.RoundRobinProxySwitcher("socks5://127.0.0.1:7891")
+	rp, err := proxy.RoundRobinProxySwitcher("socks5://127.0.0.1:7890")
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -49,7 +49,7 @@ func MRTMenuItems(callback func(items ItemSection, err error)) {
 	extensions.RandomUserAgent(c)
 
 	// proxies
-	rp, err := proxy.RoundRobinProxySwitcher("socks5://127.0.0.1:7891")
+	rp, err := proxy.RoundRobinProxySwitcher("socks5://127.0.0.1:7890")
 	if err != nil {
 		log.Fatal(err)
 	}
