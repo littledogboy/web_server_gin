@@ -56,12 +56,19 @@ func BPGDetailViewSpider(urlString string, callback func(AlbumDetail, error)) {
 	)
 	extensions.RandomUserAgent(c)
 
+	// proxies
+	rp, err := proxy.RoundRobinProxySwitcher("socks5://127.0.0.1:7890")
+	if err != nil {
+		log.Fatal(err)
+	}
+	c.SetProxyFunc(rp)
+
 	c.Limit(&colly.LimitRule{
 		DomainGlob:  Bestprettygirl.Doman,
 		RandomDelay: 100 * time.Millisecond,
 		Parallelism: 30,
 	})
-	c.SetRequestTimeout(20 * time.Second)
+	c.SetRequestTimeout(30 * time.Second)
 
 	imageCollector := c.Clone()
 
@@ -147,6 +154,7 @@ func MRTDetailViewSpider(urlString string, callback func(AlbumDetail, error)) {
 		RandomDelay: 100 * time.Millisecond,
 		Parallelism: 30,
 	})
+	c1.SetRequestTimeout(30 * time.Second)
 
 	imageCollector := c1.Clone()
 
