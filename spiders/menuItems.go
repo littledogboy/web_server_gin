@@ -83,6 +83,14 @@ func BestPrettyGirlMenuItems(callback func(items ItemSection, err error)) {
 	sectionItems := ItemSection{Title: Bestprettygirl.Name, Items: []Item{}}
 
 	c := colly.NewCollector()
+
+	// proxies
+	rp, err := proxy.RoundRobinProxySwitcher("socks5://127.0.0.1:7890")
+	if err != nil {
+		log.Fatal(err)
+	}
+	c.SetProxyFunc(rp)
+
 	extensions.RandomUserAgent(c)
 
 	selector := Bestprettygirl_Menu_Selector
